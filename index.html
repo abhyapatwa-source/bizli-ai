@@ -20,7 +20,13 @@
     /* SPLASH SCREEN */
     #splash{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity.6s ease-out}
     #splash.hide{opacity:0;pointer-events:none}
-  .splash-logo{width:110px;height:110px;animation:logoZoom 2.2s cubic-bezier(.2,.8,.2,1) forwards}
+ .splash-logo{
+    width:110px;
+    height:110px;
+    background: transparent!important;
+    mix-blend-mode: screen;
+    animation:logoZoom 2.2s cubic-bezier(.2,.8,.2,1) forwards
+  }
     @keyframes logoZoom{
       0%{transform:scale(.4) rotate(-10deg);opacity:0;filter:blur(4px)}
       40%{transform:scale(1.15) rotate(5deg);opacity:1;filter:blur(0)}
@@ -36,21 +42,21 @@
     #logged-out{text-align:center;margin:auto}
     #logged-out h1{font-size:28px;margin-bottom:12px;font-weight:700}
     #logged-out p{opacity:.6;margin-bottom:32px;font-size:15px}
-  .login-btn{background:#00ff88;color:#000;border:none;padding:14px 28px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;transition:transform.1s}
-  .login-btn:active{transform:scale(.96)}
+ .login-btn{background:#00ff88;color:#000;border:none;padding:14px 28px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;transition:transform.1s}
+ .login-btn:active{transform:scale(.96)}
     
     /* LOGGED IN STATE */
     #logged-in{display:none;flex:1}
-  .header{padding:16px 0 24px;border-bottom:1px solid #1a1a1a}
-  .header h1{font-size:20px;font-weight:600}
-  .header p{opacity:.5;font-size:13px;margin-top:4px}
-  .chat-placeholder{flex:1;display:flex;align-items:center;justify-content:center;opacity:.3;text-align:center}
+ .header{padding:16px 0 24px;border-bottom:1px solid #1a1a1a}
+ .header h1{font-size:20px;font-weight:600}
+ .header p{opacity:.5;font-size:13px;margin-top:4px}
+ .chat-placeholder{flex:1;display:flex;align-items:center;justify-content:center;opacity:.3;text-align:center}
   </style>
 </head>
 <body>
   <!-- ANIMATED SPLASH -->
   <div id="splash">
-    <img src="/icons/icon-512.png" class="splash-logo" alt="Bizli AI">
+    <img src="/splash-logo.png" class="splash-logo" alt="Bizli AI">
   </div>
 
   <!-- MAIN APP -->
