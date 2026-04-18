@@ -1,255 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bizli AI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>Bizli AI</title>
+  
+  <!-- Firebase SDKs - REPLACE WITH YOUR VERSIONS IF DIFFERENT -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:#000;font-family:system-ui,-apple-system,sans-serif;color:#fff;overflow:hidden}
     
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#1a1a2e">
-    <meta name="description" content="Bizli AI - Your personal AI assistant">
-    <link rel="manifest" href="manifest.json?v=2">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="apple-touch-icon" href="icon-512.png">
+    /* SPLASH SCREEN */
+    #splash{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity.6s ease-out}
+    #splash.hide{opacity:0;pointer-events:none}
+   .splash-logo{width:110px;height:110px;animation:logoZoom 2.2s cubic-bezier(.2,.8,.2,1) forwards}
+    @keyframes logoZoom{
+      0%{transform:scale(.4) rotate(-10deg);opacity:0;filter:blur(4px)}
+      40%{transform:scale(1.15) rotate(5deg);opacity:1;filter:blur(0)}
+      70%{transform:scale(.95) rotate(0deg)}
+      100%{transform:scale(1) rotate(0deg)}
+    }
     
-    <!-- Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    /* MAIN APP */
+    #app{opacity:0;transition:opacity.8s ease-in;min-height:100vh;padding:20px;display:flex;flex-direction:column}
+    #app.show{opacity:1}
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-     .container {
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-        
-     .logo {
-            width: 120px;
-            height: 120px;
-            border-radius: 30px;
-            margin: 0 auto 30px;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
-            object-fit: cover;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-     .subtitle {
-            color: #a0a0b8;
-            margin-bottom: 40px;
-            font-size: 1.1rem;
-        }
-        
-        #login-section {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        #app-section {
-            display: none;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-     .user-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-     .user-photo {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid #667eea;
-        }
-        
-     .user-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        
-     .sign-out-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 12px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: transform 0.2s;
-        }
-        
-     .sign-out-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-     .chat-placeholder {
-            color: #a0a0b8;
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-        }
-        
-     .offline-banner {
-            display: none;
-            background: #ff6b6b;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-    </style>
+    /* LOGIN STATE */
+    #logged-out{text-align:center;margin:auto}
+    #logged-out h1{font-size:28px;margin-bottom:12px;font-weight:700}
+    #logged-out p{opacity:.6;margin-bottom:32px;font-size:15px}
+   .login-btn{background:#00ff88;color:#000;border:none;padding:14px 28px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;transition:transform.1s}
+   .login-btn:active{transform:scale(.96)}
+    
+    /* LOGGED IN STATE */
+    #logged-in{display:none;flex:1}
+   .header{padding:16px 0 24px;border-bottom:1px solid #1a1a1a}
+   .header h1{font-size:20px;font-weight:600}
+   .header p{opacity:.5;font-size:13px;margin-top:4px}
+   .chat-placeholder{flex:1;display:flex;align-items:center;justify-content:center;opacity:.3;text-align:center}
+  </style>
 </head>
 <body>
-    <div class="offline-banner" id="offlineBanner">
-        You're offline. Some features may not work.
+  <!-- ANIMATED SPLASH -->
+  <div id="splash">
+    <img src="/icons/icon-512.png" class="splash-logo" alt="Bizli AI">
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app">
+    <!-- LOGGED OUT VIEW -->
+    <div id="logged-out">
+      <h1>Bizli AI</h1>
+      <p>Your personal AI assistant</p>
+      <button class="login-btn" onclick="signInWithGoogle()">Continue with Google</button>
     </div>
     
-    <div class="container">
-        <img class="logo" src="icon-512.png" alt="Bizli AI Logo">
-        <h1>Bizli AI</h1>
-        <p class="subtitle">Your personal AI assistant</p>
-        
-        <!-- Login Section -->
-        <div id="login-section">
-            <div id="g_id_onload"
-                 data-client_id="118990478274-6465gb1080n5uj2j0vc93rq16n1k3g1j.apps.googleusercontent.com"
-                 data-context="signin"
-                 data-ux_mode="popup"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false">
-            </div>
-            
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="pill"
-                 data-theme="filled_black"
-                 data-text="continue_with"
-                 data-size="large"
-                 data-logo_alignment="left">
-            </div>
+    <!-- LOGGED IN VIEW -->
+    <div id="logged-in">
+      <div class="header">
+        <h1 id="welcome-text">Hello, Papa</h1>
+        <p>Signed in</p>
+      </div>
+      <div class="chat-placeholder">
+        <div>
+          <p style="font-size:18px;margin-bottom:8px">Chat interface</p>
+          <p style="font-size:14px">Coming next...</p>
         </div>
-        
-        <!-- App Section -->
-        <div id="app-section">
-            <div class="user-info">
-                <img id="userPhoto" class="user-photo" src="" alt="User">
-                <div>
-                    <div class="user-name" id="userName"></div>
-                    <div style="color: #a0a0b8; font-size: 0.9rem;">Signed in</div>
-                </div>
-            </div>
-            
-            <div class="chat-placeholder">
-                🚀 Bizli AI is ready, Papa!<br><br>
-                Chat functionality coming soon. Your login works perfectly.
-            </div>
-            
-            <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
-        </div>
+      </div>
     </div>
+  </div>
+
+  <script>
+    // ===== REPLACE WITH YOUR FIREBASE CONFIG =====
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    // =============================================
     
-    <script>
-        // Check if user is already logged in
-        window.onload = function() {
-            const savedUser = localStorage.getItem('bizliUser');
-            if (savedUser) {
-                showApp(JSON.parse(savedUser));
-            }
-            registerServiceWorker();
-            checkOnlineStatus();
-        };
-        
-        // Google Sign-In callback
-        function handleCredentialResponse(response) {
-            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            const user = {
-                name: payload.name,
-                email: payload.email,
-                picture: payload.picture
-            };
-            localStorage.setItem('bizliUser', JSON.stringify(user));
-            showApp(user);
-        }
-        
-        // Show app after login
-        function showApp(user) {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('app-section').style.display = 'block';
-            document.getElementById('userName').textContent = `Hello, ${user.name}, Papa`;
-            document.getElementById('userPhoto').src = user.picture;
-        }
-        
-        // Sign out
-        function signOut() {
-            localStorage.removeItem('bizliUser');
-            google.accounts.id.disableAutoSelect();
-            document.getElementById('login-section').style.display = 'block';
-            document.getElementById('app-section').style.display = 'none';
-        }
-        
-        // Service Worker for PWA + Offline
-        function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('service-worker.js')
-                 .then(reg => console.log('Service Worker registered'))
-                 .catch(err => console.log('Service Worker failed', err));
-            }
-        }
-        
-        // Online/Offline detection
-        function checkOnlineStatus() {
-            const banner = document.getElementById('offlineBanner');
-            function updateOnlineStatus() {
-                if (navigator.onLine) {
-                    banner.style.display = 'none';
-                } else {
-                    banner.style.display = 'block';
-                }
-            }
-            window.addEventListener('online', updateOnlineStatus);
-            window.addEventListener('offline', updateOnlineStatus);
-            updateOnlineStatus();
-        }
-    </script>
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    
+    // Splash timing: minimum 2.2s for animation
+    let splashDone = false;
+    setTimeout(()=>{splashDone = true; checkAndShowApp();}, 2200);
+    
+    // Auth state listener
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        const name = user.displayName || user.email.split('@')[0] || 'Papa';
+        onLoginSuccess(name);
+      } else {
+        showLoginScreen();
+      }
+      checkAndShowApp();
+    });
+    
+    function checkAndShowApp(){
+      if(splashDone){
+        document.getElementById('splash').classList.add('hide');
+        document.getElementById('app').classList.add('show');
+        setTimeout(()=>document.getElementById('splash').remove(), 600);
+      }
+    }
+    
+    function showLoginScreen(){
+      document.getElementById('logged-out').style.display='block';
+      document.getElementById('logged-in').style.display='none';
+    }
+    
+    function onLoginSuccess(name){
+      document.getElementById('logged-out').style.display='none';
+      document.getElementById('logged-in').style.display='block';
+      document.getElementById('welcome-text').innerText=`Hello, ${name}`;
+    }
+    
+    function signInWithGoogle(){
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(err=>{
+        alert('Login failed: ' + err.message);
+      });
+    }
+  </script>
 </body>
 </html>
