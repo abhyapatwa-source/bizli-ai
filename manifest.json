@@ -1,12 +1,11 @@
 {
   "name": "Bizli AI",
-  "short_name": "Bizli",
-  "description": "Your personal AI assistant",
+  "short_name": "Bizli AI",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",
-  "orientation": "portrait",
+  "description": "Bizli AI - Your personal AI assistant",
   "icons": [
     {
       "src": "icon-192.png",
