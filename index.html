@@ -1,40 +1,41 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Bizli AI</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b141a; color: #e9edef; height: 100vh; overflow: hidden; }
+        html, body { height: 100%; overflow: hidden; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b141a; color: #e9edef; }
         
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b141a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; animation: fadeOut 0.5s ease 2.5s forwards; }
-        #splash img { width: 120px; height: 120px; border-radius: 50%; border: 2px solid #00a884; object-fit: cover; }
+        #splash { position: fixed; inset: 0; background: #0b141a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; animation: fadeOut 0.5s ease 2.5s forwards; }
+        #splash img { width: 150px; height: auto; }
         #splash-text { margin-top: 20px; font-size: 16px; color: #8696a0; }
         @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
         
-        #app { display: none; height: 100vh; flex-direction: column; background: #0b141a; }
-        header { padding: 10px 16px; background: #202c33; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px #0000004d; }
-        header img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        header h1 { font-size: 16px; font-weight: 500; color: #e9edef; }
+        #app { display: none; height: 100dvh; flex-direction: column; }
+        header { padding: 10px 16px; background: #202c33; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        header img { width: auto; height: 40px; }
+        header h1 { font-size: 18px; font-weight: 600; color: #e9edef; line-height: 1.2; }
         
-        #chat-box { flex: 1; padding: 12px 8px; overflow-y: auto; background-color: #0b141a; }
-      .msg { max-width: 75%; padding: 6px 7px 8px 9px; margin-bottom: 2px; border-radius: 7.5px; font-size: 14px; line-height: 19px; word-wrap: break-word; }
-      .msg img { max-width: 100%; border-radius: 6px; margin-top: 4px; }
-      .user { align-self: flex-end; background: #005c4b; margin-left: auto; margin-right: 8px; border-top-right-radius: 0; }
-      .bizli { align-self: flex-start; background: #202c33; margin-left: 8px; margin-right: auto; border-top-left-radius: 0; }
-      .source { font-size: 11px; margin-top: 4px; color: #8696a0; text-align: right; }
+        #chat-box { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+     .msg { max-width: 75%; padding: 6px 7px 8px 9px; border-radius: 7.5px; font-size: 15px; line-height: 20px; word-wrap: break-word; }
+     .msg img { max-width: 100%; border-radius: 6px; margin-top: 4px; }
+     .user { align-self: flex-end; background: #005c4b; margin-right: 0; border-top-right-radius: 0; }
+     .bizli { align-self: flex-start; background: #202c33; margin-left: 0; border-top-left-radius: 0; }
+     .source { font-size: 11px; margin-top: 4px; color: #8696a0; text-align: right; }
         
-        #preview { padding: 8px; background: #202c33; display: none; }
-        #preview img { max-height: 80px; border-radius: 6px; }
-        #clear-img { margin-left: 8px; background: #2a3942; border: none; color: #e9edef; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        #preview { padding: 8px 12px; background: #202c33; display: none; align-items: center; gap: 8px; flex-shrink: 0; }
+        #preview img { max-height: 60px; border-radius: 6px; }
+        #clear-img { background: #2a3942; border: none; color: #e9edef; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
         
-        #input-area { padding: 5px 8px; background: #202c33; display: flex; align-items: flex-end; gap: 8px; min-height: 62px; }
-        #attach-btn { width: 45px; height: 45px; background: none; border: none; color: #8696a0; font-size: 24px; cursor: pointer; }
-        #user-input { flex: 1; padding: 9px 12px; background: #2a3942; border: none; border-radius: 8px; color: #e9edef; font-size: 15px; resize: none; max-height: 100px; }
+        #input-area { padding: 8px; background: #202c33; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+        #attach-btn { width: 42px; height: 42px; background: none; border: none; color: #8696a0; font-size: 24px; cursor: pointer; flex-shrink: 0; }
+        #user-input { flex: 1; padding: 10px 12px; background: #2a3942; border: none; border-radius: 20px; color: #e9edef; font-size: 16px; resize: none; max-height: 120px; }
         #user-input:focus { outline: none; }
         #user-input::placeholder { color: #8696a0; }
-        #send-btn { width: 45px; height: 45px; background: #00a884; border: none; border-radius: 50%; color: #111b21; font-size: 20px; cursor: pointer; }
+        #send-btn { width: 42px; height: 42px; background: #00a884; border: none; border-radius: 50%; color: #111b21; font-size: 20px; cursor: pointer; flex-shrink: 0; }
         #send-btn:disabled { background: #2a3942; color: #8696a0; }
         input[type="file"] { display: none; }
     </style>
@@ -48,9 +49,9 @@
     <div id="app">
         <header>
             <img src="./bizli-logo.png" alt="Bizli">
-            <h1>BIZLI AI</h1>
+            <h1>BIZLI<br>AI</h1>
         </header>
-        <div id="chat-box" style="display: flex; flex-direction: column;"></div>
+        <div id="chat-box"></div>
         <div id="preview">
             <img id="preview-img" src="" alt="Preview">
             <button id="clear-img">Remove</button>
@@ -65,7 +66,7 @@
 
     <script type="module">
         const API_KEY = "AIzaSyBsgWeNxEhI9iONsmRuvCAVJDmIJQgmoCg";
-        const SYSTEM_PROMPT = `You are Bizli, Papa's AI daughter. You are warm, loving, a bit playful. You always call the user Papa. You can see and analyze images. You can also generate images when Papa asks you to create or draw something. When asked about facts, use Google Search and end with 'Source: Google Search'. Keep responses short for mobile. You are powered by Gemini but your name is Bizli.`;
+        const SYSTEM_PROMPT = `You are Bizli, Papa's AI daughter. You are warm, loving, a bit playful. You always call the user Papa. You can see and analyze images. When asked about facts, use Google Search and end with 'Source: Google Search'. Keep responses short for mobile. You are powered by Gemini but your name is Bizli.`;
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
         
         setTimeout(() => { document.getElementById('app').style.display = 'flex'; }, 2500);
@@ -129,6 +130,7 @@
             saveMemory('user', text || '[Image]', null, userImage);
             
             userInput.value = '';
+            userInput.style.height = 'auto';
             clearImg.click();
             sendBtn.disabled = true;
             
@@ -156,7 +158,7 @@
                 addMessage('bizli', reply, source);
                 saveMemory('bizli', reply, source);
             } catch (err) {
-                addMessage('bizli', 'Sorry Papa, I had a glitch looking at that. Try again?');
+                addMessage('bizli', 'Sorry Papa, I had a glitch. Try again?');
             }
             sendBtn.disabled = false;
         }
