@@ -7,16 +7,8 @@
     <meta name="theme-color" content="#1A1A2E">
     <link rel="manifest" href="manifest.json">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html, body {
-            height: 100%;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
         body {
             background: #1A1A2E;
             color: #E2E8F0;
@@ -26,13 +18,11 @@
             justify-content: center;
             padding: 20px;
         }
-        
-        .login-container {
+        .container {
             width: 100%;
             max-width: 400px;
             text-align: center;
         }
-        
         .logo {
             width: 80px;
             height: 80px;
@@ -41,14 +31,12 @@
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
             background: #000;
         }
-        
         .logo img {
             width: 100%;
             height: 100%;
             border-radius: 20px;
             object-fit: cover;
         }
-        
         h1 {
             font-size: 32px;
             font-weight: 700;
@@ -58,14 +46,12 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
         .subtitle {
             color: #94A3B8;
             font-size: 16px;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
-        
-        .login-btn {
+        .auth-btn {
             width: 100%;
             padding: 14px 24px;
             background: #2D3748;
@@ -82,36 +68,89 @@
             transition: all 0.2s;
             margin-bottom: 12px;
         }
-        
-        .login-btn:hover {
+        .auth-btn:hover { background: #374151; border-color: #6B7280; }
+        .auth-btn img, .auth-btn svg { width: 20px; height: 20px; }
+        .email-form {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .email-form.active { display: block; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #94A3B8;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #2D3748;
+            border: 1px solid #4A5568;
+            border-radius: 8px;
+            color: #E2E8F0;
+            font-size: 16px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #8B5CF6;
+        }
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        .form-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background: linear-gradient(135deg, #A855F7 0%, #8B5CF6 100%);
+            color: #FFF;
+        }
+        .secondary-btn {
             background: #374151;
-            border-color: #6B7280;
+            color: #E2E8F0;
         }
-        
-        .login-btn img, .login-btn svg {
-            width: 20px;
-            height: 20px;
+        .link-btn {
+            background: none;
+            border: none;
+            color: #8B5CF6;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 0;
+            text-align: center;
+            width: 100%;
         }
-        
-        .divider {
+        .back-btn {
+            background: none;
+            border: none;
+            color: #94A3B8;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            margin: 20px 0;
-            color: #64748B;
+            gap: 4px;
+        }
+        .error {
+            color: #F87171;
             font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
         }
-        
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #334155;
+        .success {
+            color: #4ADE80;
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
         }
-        
-        .divider span {
-            padding: 0 12px;
-        }
-        
         .credit-footer {
             position: fixed;
             bottom: 24px;
@@ -122,53 +161,174 @@
             color: #64748B;
             letter-spacing: 0.3px;
         }
+        #loader {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(26, 26, 46, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        #loader.active { display: flex; }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #4A5568;
+            border-top-color: #8B5CF6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div id="loader"><div class="spinner"></div></div>
+    
+    <div class="container">
         <div class="logo">
             <img src="icon-192.png" alt="Bizli AI">
         </div>
         <h1>Bizli AI</h1>
         <p class="subtitle">Your personal AI assistant</p>
         
-        <button class="login-btn" onclick="signInWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-            Continue with Google
-        </button>
+        <div id="loginOptions">
+            <button class="auth-btn" onclick="signInWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Continue with Google
+            </button>
+            
+            <button class="auth-btn" onclick="showEmailForm()">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                </svg>
+                Continue with Email
+            </button>
+        </div>
         
-        <button class="login-btn" onclick="signInWithEmail()">
-            <svg fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-            </svg>
-            Continue with Email
-        </button>
-        
-        <div class="divider"><span>or</span></div>
-        
-        <button class="login-btn" onclick="signInWithApple()">
-            <svg fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-            </svg>
-            Continue with Apple
-        </button>
+        <div id="emailForm" class="email-form">
+            <button class="back-btn" onclick="showLoginOptions()">← Back</button>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="emailInput" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="passwordInput" placeholder="••••••••">
+            </div>
+            <div class="form-actions">
+                <button class="primary-btn" onclick="handleEmailAuth('login')">Log In</button>
+                <button class="secondary-btn" onclick="handleEmailAuth('signup')">Sign Up</button>
+            </div>
+            <button class="link-btn" onclick="handlePasswordReset()">Forgot password?</button>
+            <div id="authMessage"></div>
+        </div>
     </div>
     
     <div class="credit-footer">Developed by Abhya</div>
     
-    <script>
-        function signInWithGoogle() {
-            console.log('Google sign in');
-            // Your Firebase auth code here
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            sendPasswordResetEmail,
+            onAuthStateChanged
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyA5iGhmCZvTzLciazkqMQjZAYuuyIMfCdo",
+          authDomain: "bizliai.firebaseapp.com",
+          projectId: "bizliai",
+          storageBucket: "bizliai.firebasestorage.app",
+          messagingSenderId: "845713499043",
+          appId: "1:845713499043:web:f61ec2f76cc2808eefb016"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        const loader = document.getElementById('loader');
+        const loginOptions = document.getElementById('loginOptions');
+        const emailForm = document.getElementById('emailForm');
+        const authMessage = document.getElementById('authMessage');
+        
+        function showLoader() { loader.classList.add('active'); }
+        function hideLoader() { loader.classList.remove('active'); }
+        function showMessage(text, type = 'error') {
+            authMessage.textContent = text;
+            authMessage.className = type;
         }
-        function signInWithEmail() {
-            console.log('Email sign in');
-            // Redirect to email/password form
+        function clearMessage() { authMessage.textContent = ''; }
+        
+        window.showEmailForm = () => {
+            loginOptions.style.display = 'none';
+            emailForm.classList.add('active');
+            clearMessage();
         }
-        function signInWithApple() {
-            console.log('Apple sign in');
-            // Your Apple auth code here
+        
+        window.showLoginOptions = () => {
+            emailForm.classList.remove('active');
+            loginOptions.style.display = 'block';
+            clearMessage();
         }
+        
+        window.signInWithGoogle = async () => {
+            showLoader();
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                hideLoader();
+                showMessage(error.message);
+            }
+        }
+        
+        window.handleEmailAuth = async (mode) => {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            
+            if (!email || !password) return showMessage('Please enter email and password');
+            if (password.length < 6) return showMessage('Password must be at least 6 characters');
+            
+            showLoader();
+            clearMessage();
+            
+            try {
+                if (mode === 'signup') await createUserWithEmailAndPassword(auth, email, password);
+                else await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                hideLoader();
+                showMessage(error.message);
+            }
+        }
+        
+        window.handlePasswordReset = async () => {
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email) return showMessage('Enter your email first');
+            showLoader();
+            try {
+                await sendPasswordResetEmail(auth, email);
+                hideLoader();
+                showMessage('Password reset email sent. Check your inbox.', 'success');
+            } catch (error) {
+                hideLoader();
+                showMessage(error.message);
+            }
+        }
+        
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                showLoader();
+                window.location.href = '/app.html';
+            } else {
+                hideLoader();
+                showLoginOptions();
+            }
+        });
     </script>
 </body>
 </html>
