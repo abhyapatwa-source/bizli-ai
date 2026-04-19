@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0a0e1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,7 +23,7 @@
 
     /* LOGIN STATE - YOUR BEAUTIFUL VERSION */
     #logged-out{text-align:center;max-width:320px;width:100%}
-   .logo-box{
+  .logo-box{
       width:90px;
       height:90px;
       background:#000;
@@ -34,7 +34,7 @@
       justify-content:center;
       box-shadow:0 0 30px rgba(0,255,209,.2)
     }
-   .logo-box img{width:60px;height:60px}
+  .logo-box img{width:60px;height:60px}
     #logged-out h1{
       font-size:32px;
       margin-bottom:8px;
@@ -48,7 +48,7 @@
       font-size:15px;
       color:#94a3b8
     }
-   .google-btn{
+  .google-btn{
       background:#1e293b;
       border:1px solid #334155;
       color:#fff;
@@ -63,15 +63,15 @@
       margin:0 auto;
       transition:all.2s
     }
-   .google-btn:active{transform:scale(.96);background:#334155}
-   .google-btn img{width:20px;height:20px}
+  .google-btn:active{transform:scale(.96);background:#334155}
+  .google-btn img{width:20px;height:20px}
 
     /* LOGGED IN STATE */
     #logged-in{display:none;flex:1;width:100%;padding:20px}
-   .header{padding:16px 0 24px;border-bottom:1px solid #1e293b}
-   .header h1{font-size:20px;font-weight:600}
-   .header p{opacity:.5;font-size:13px;margin-top:4px;color:#94a3b8}
-   .chat-placeholder{flex:1;display:flex;align-items:center;justify-content:center;opacity:.3;text-align:center}
+  .header{padding:16px 0 24px;border-bottom:1px solid #1e293b}
+  .header h1{font-size:20px;font-weight:600}
+  .header p{opacity:.5;font-size:13px;margin-top:4px;color:#94a3b8}
+  .chat-placeholder{flex:1;display:flex;align-items:center;justify-content:center;opacity:.3;text-align:center}
   </style>
 </head>
 <body>
@@ -80,7 +80,7 @@
     <!-- LOGGED OUT VIEW - BEAUTIFUL VERSION -->
     <div id="logged-out">
       <div class="logo-box">
-        <img src="/icon-192.png" alt="Bizli AI">
+        <img src="./icon-192.png" alt="Bizli AI">
       </div>
       <h1>Bizli AI</h1>
       <p>Your personal AI assistant</p>
@@ -152,7 +152,7 @@
 
     // Register service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js');
+      navigator.serviceWorker.register('./service-worker.js');
     }
   </script>
 </body>
