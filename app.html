@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bizli AI</title>
   <meta name="theme-color" content="#1A1A2E">
-  <link rel="manifest" href="manifest.json?v=7">
+  <link rel="manifest" href="manifest.json?v=10">
   <style>
     :root {
       --bg: #0B141A; --bg-chat: #0A1014; --bg-header: #1F2C34;
@@ -36,35 +36,50 @@
       display: flex; flex-direction: column;
     }
 
-    /* HEADER */
+    /* HEADER - FIX #3 + #4 */
     header {
       height: 60px; background: var(--bg-header);
       display: flex; align-items: center; padding: 0 16px; gap: 12px;
       border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
-  .back-btn {
+ .back-btn {
       background: none; border: none; color: var(--text);
       font-size: 24px; cursor: pointer; padding: 8px; margin-left: -8px;
     }
-  .avatar {
-      width: 40px; height: 40px; border-radius: 50%;
+ .avatar {
+      width: 40px; height: 40px; border-radius: 50%; overflow: hidden;
+      cursor: pointer; position: relative; flex-shrink: 0;
       background: linear-gradient(135deg, var(--accent), #8B5CF6);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; cursor: pointer; position: relative;
-      box-shadow: 0 0 20px rgba(168,85,247,0.4);
     }
-  .avatar::after {
+ .avatar img { width: 100%; height: 100%; object-fit: cover; }
+ .avatar::after {
       content: ''; position: absolute; bottom: 0; right: 0;
       width: 12px; height: 12px; background: #00A884;
       border: 2px solid var(--bg-header); border-radius: 50%;
     }
-  .header-info { flex: 1; }
-  .header-name { font-size: 16px; font-weight: 500; line-height: 1.2; }
-  .header-status { font-size: 12px; color: var(--text-muted); }
-  .menu-btn {
+ .header-info { flex: 1; min-width: 0; }
+ .header-name { font-size: 17px; font-weight: 600; line-height: 1.2; }
+ .header-status { font-size: 13px; color: var(--text-muted); transition: color 0.2s; }
+
+    /* FIX #7: WhatsApp dropdown */
+ .menu-dropdown { position: relative; }
+ .menu-btn {
       background: none; border: none; color: var(--text);
       font-size: 24px; cursor: pointer; padding: 8px;
     }
+ .menu-content {
+      display: none; position: absolute; right: 0; top: 45px;
+      background: var(--bg-header); border: 1px solid var(--border);
+      border-radius: 8px; min-width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 100; overflow: hidden;
+    }
+ .menu-content.show { display: block; }
+ .menu-item {
+      padding: 12px 16px; cursor: pointer; font-size: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+ .menu-item:last-child { border-bottom: none; }
+ .menu-item:hover { background: var(--bg); }
 
     /* CHAT */
     #chat {
@@ -77,42 +92,61 @@
       background-size: cover; background-position: center;
       opacity: 0.15; pointer-events: none; z-index: 0;
     }
-  .msg-row { display: flex; margin-bottom: 8px; align-items: flex-end; gap: 8px; position: relative; z-index: 1; }
-  .msg-row.user { justify-content: flex-end; }
-  .bubble {
-      max-width: 75%; padding: 8px 12px; border-radius: 8px;
-      line-height: 1.4; font-size: 15px; white-space: pre-wrap;
+ .msg-row { display: flex; margin-bottom: 10px; align-items: flex-end; gap: 8px; position: relative; z-index: 1; }
+ .msg-row.user { justify-content: flex-end; }
+
+    /* FIX #1: 16px text */
+ .bubble {
+      max-width: 78%; padding: 10px 14px; border-radius: 8px;
+      line-height: 1.5; font-size: 16px; white-space: pre-wrap;
       word-wrap: break-word; position: relative;
       backdrop-filter: blur(10px);
     }
-  .bizli.bubble {
+ .bizli.bubble {
       background: color-mix(in srgb, var(--bg-bubble-bizli) 85%, transparent);
       border-top-left-radius: 0;
     }
-  .user.bubble {
+ .user.bubble {
       background: color-mix(in srgb, var(--bg-bubble-me) 90%, transparent);
       border-top-right-radius: 0; color: #FFF;
     }
-  .msg-time {
-      font-size: 11px; color: var(--text-muted); margin-top: 4px;
-      display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+ .msg-time {
+      font-size: 12px; color: var(--text-muted); margin-top: 6px;
+      text-align: right;
     }
-  .ticks { font-size: 14px; color: #53BDEB; }
-  .msg-actions {
-      display: none; gap: 8px; margin-top: 4px; font-size: 18px;
+
+    /* FIX #6: Actions show on hover */
+ .msg-actions {
+      display: flex; gap: 10px; margin-top: 6px; font-size: 16px;
+      opacity: 0; transition: opacity 0.2s;
     }
-  .bubble:hover.msg-actions { display: flex; }
-  .msg-action { cursor: pointer; opacity: 0.7; }
-  .msg-action:hover { opacity: 1; }
-  .typing { color: var(--text-muted); font-style: italic; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+ .bizli.bubble:hover.msg-actions { opacity: 1; }
+ .msg-action { cursor: pointer; opacity: 0.7; padding: 2px; }
+ .msg-action:hover { opacity: 1; transform: scale(1.1); }
+
+    /* FIX #5: GPT typing bubbles */
+ .typing-row { display: flex; margin-bottom: 10px; align-items: flex-end; gap: 8px; z-index: 1; }
+ .typing-bubble {
+      background: color-mix(in srgb, var(--bg-bubble-bizli) 85%, transparent);
+      padding: 14px 18px; border-radius: 8px; border-top-left-radius: 0;
+    }
+ .typing-dots { display: flex; gap: 5px; align-items: center; }
+ .typing-dots span {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--text-muted);
+      animation: typing 1.4s infinite ease-in-out;
+    }
+ .typing-dots span:nth-child(1) { animation-delay: 0s; }
+ .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+ .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-10px); opacity: 1; } }
 
     /* CODE */
-  .bubble pre {
+ .bubble pre {
       background: #000; padding: 12px; border-radius: 6px;
-      margin: 8px -4px; overflow-x: auto; font-size: 13px; position: relative;
+      margin: 8px -4px; overflow-x: auto; font-size: 14px; position: relative;
     }
-  .copy-code {
+ .copy-code {
       position: absolute; top: 8px; right: 8px;
       background: var(--bg-input); border: 1px solid var(--border);
       color: var(--text); padding: 4px 8px; border-radius: 4px;
@@ -120,92 +154,88 @@
     }
 
     /* FILE PREVIEW */
-  .file-preview {
+ .file-preview {
       display: flex; align-items: center; gap: 8px;
-      background: var(--bg-header); padding: 8px; border-radius: 8px; margin-bottom: 8px;
+      background: var(--bg-header); padding: 8px; border-radius: 8px; margin: 0 16px 8px;
     }
-  .file-preview img { width: 48px; height: 48px; border-radius: 4px; object-fit: cover; }
-  .file-name { flex: 1; font-size: 13px; }
-  .file-remove { cursor: pointer; color: var(--text-muted); }
+ .file-preview img { width: 48px; height: 48px; border-radius: 4px; object-fit: cover; }
+ .file-name { flex: 1; font-size: 14px; }
+ .file-remove { cursor: pointer; color: var(--text-muted); font-size: 20px; }
 
     /* CHIPS */
     #chips {
       display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto;
       background: var(--bg-chat); border-top: 1px solid var(--border); flex-shrink: 0;
     }
-  .chip {
+ .chip {
       background: var(--bg-input); border: 1px solid var(--border);
-      color: var(--text); padding: 6px 12px; border-radius: 16px;
-      font-size: 13px; cursor: pointer; white-space: nowrap;
+      color: var(--text); padding: 8px 14px; border-radius: 16px;
+      font-size: 14px; cursor: pointer; white-space: nowrap;
     }
-  .chip:hover { background: var(--border); }
+ .chip:hover { background: var(--border); }
 
     /* INPUT */
     #input-area {
       padding: 8px 12px; background: var(--bg-input);
       display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
     }
-  .input-icon {
+ .input-icon {
       background: none; border: none; color: var(--text-muted);
       font-size: 24px; cursor: pointer; padding: 8px; position: relative;
     }
-  .input-icon.recording::after {
+ .input-icon.recording::after {
       content: ''; position: absolute; inset: 4px;
       border: 2px solid var(--accent); border-radius: 50%;
       animation: pulse 1s infinite;
     }
     #text {
       flex: 1; background: var(--bg-header); border: none;
-      border-radius: 24px; padding: 10px 16px; color: var(--text);
-      font-size: 15px; max-height: 100px; resize: none; font-family: inherit;
+      border-radius: 24px; padding: 12px 18px; color: var(--text);
+      font-size: 16px; max-height: 120px; resize: none; font-family: inherit;
     }
     #text:focus { outline: none; }
     #send {
       background: var(--accent); border: none; border-radius: 50%;
       width: 48px; height: 48px; color: #FFF; font-size: 20px;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
     #send:disabled { opacity: 0.5; cursor: not-allowed; }
     #fileInput { display: none; }
 
-    /* THEME STORE */
+    /* THEME STORE - FIX #8 */
     #themeModal {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.8); z-index: 9999;
       align-items: center; justify-content: center; padding: 20px;
     }
     #themeModal.active { display: flex; }
-  .modal-content {
+ .modal-content {
       background: var(--bg-header); border-radius: 12px;
       width: 100%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column;
     }
-  .modal-head {
+ .modal-head {
       padding: 16px; border-bottom: 1px solid var(--border);
       display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
     }
-  .modal-body {
-      padding: 16px; display: grid; grid-template-columns: repeat(2, 1fr);
+ .modal-body {
+      padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 12px; overflow-y: auto;
     }
-  .theme-card {
+ .theme-card {
       background: var(--bg); border: 2px solid var(--border);
       border-radius: 8px; padding: 12px; cursor: pointer; position: relative;
     }
-  .theme-card.active { border-color: var(--accent); }
-  .theme-card.downloading { opacity: 0.6; pointer-events: none; }
-  .theme-preview { height: 80px; border-radius: 4px; margin-bottom: 8px; background-size: cover; background-position: center; }
-  .theme-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-  .theme-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
-  .theme-badge {
+ .theme-card.active { border-color: var(--accent); }
+ .theme-preview { height: 80px; border-radius: 4px; margin-bottom: 8px; background-size: cover; background-position: center; }
+ .theme-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+ .theme-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; }
+ .theme-badge {
       position: absolute; top: 8px; right: 8px;
       background: var(--accent); color: #FFF; padding: 2px 6px;
       border-radius: 4px; font-size: 10px; font-weight: 600;
     }
-  .download-progress {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
-      background: var(--accent); width: 0%; transition: width 0.3s;
-    }
-  .close-modal {
+ .close-modal {
       background: none; border: none; color: var(--text);
       font-size: 24px; cursor: pointer;
     }
@@ -217,16 +247,16 @@
       transition: left 0.3s; z-index: 9998; display: flex; flex-direction: column;
     }
     #sidebar.open { left: 0; }
-  .sidebar-head { padding: 16px; border-bottom: 1px solid var(--border); }
-  .new-chat-btn {
+ .sidebar-head { padding: 16px; border-bottom: 1px solid var(--border); }
+ .new-chat-btn {
       width: 100%; padding: 10px; background: var(--accent);
       border: none; border-radius: 8px; color: #FFF; font-weight: 600; cursor: pointer;
     }
     #chatList { flex: 1; overflow-y: auto; padding: 8px; }
-  .chat-item {
+ .chat-item {
       padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 4px;
     }
-  .chat-item:hover { background: var(--bg); }
+ .chat-item:hover { background: var(--bg); }
 
     #loader {
       display: none; position: fixed; inset: 0;
@@ -234,12 +264,13 @@
       justify-content: center; z-index: 99999;
     }
     #loader.active { display: flex; }
-  .spinner {
+ .spinner {
       width: 40px; height: 40px; border: 3px solid var(--border);
       border-top-color: var(--accent); border-radius: 50%;
       animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   </style>
 </head>
 <body>
@@ -268,12 +299,22 @@
   <!-- HEADER -->
   <header>
     <button class="back-btn" onclick="toggleSidebar()">≡</button>
-    <div class="avatar" onclick="openThemeModal()">🩵</div>
+    <div class="avatar" onclick="openThemeModal()">
+      <img src="./icon-192.png" alt="Bizli" onerror="this.parentElement.innerHTML='🩵'">
+    </div>
     <div class="header-info">
       <div class="header-name">Bizli AI</div>
       <div class="header-status" id="statusText">online</div>
     </div>
-    <button class="menu-btn" onclick="openMenu()">⋮</button>
+    <div class="menu-dropdown">
+      <button class="menu-btn" onclick="toggleMenu()">⋮</button>
+      <div class="menu-content" id="menuContent">
+        <div class="menu-item" onclick="openThemeModal();toggleMenu()">Theme Store</div>
+        <div class="menu-item" onclick="exportChat();toggleMenu()">Export Chat</div>
+        <div class="menu-item" onclick="clearCurrentChat();toggleMenu()">Clear Chat</div>
+        <div class="menu-item" onclick="logout();toggleMenu()">Logout</div>
+      </div>
+    </div>
   </header>
 
   <div id="chat"></div>
@@ -307,7 +348,6 @@
     };
 
     const BIZLI_BACKEND_URL = "https://bizli-brain.abhyapatwa.workers.dev";
-    const THEME_CDN = "https://bizli-brain.abhyapatwa.workers.dev/themes";
     const PAPA_EMAIL = "abhyapatwa@gmail.com";
 
     let THEME_CATALOG = [];
@@ -328,6 +368,22 @@
     let currentFile = null;
     let recognition = null;
     let isRecording = false;
+
+    // FIX #2: Load chat history
+    function loadChatHistory() {
+      const saved = localStorage.getItem('bizli-chat-history');
+      if (saved) {
+        chatHistory = JSON.parse(saved);
+        chatHistory.forEach(msg => {
+          const text = msg.parts[0].text;
+          addMessage(text, msg.role === 'user', false);
+        });
+      }
+    }
+
+    function saveChatHistory() {
+      localStorage.setItem('bizli-chat-history', JSON.stringify(chatHistory));
+    }
 
     // VOICE INPUT
     if ('webkitSpeechRecognition' in window) {
@@ -385,79 +441,27 @@
       filePreviewContainer.innerHTML = '';
     };
 
-    // THEMES
+    // THEMES - FIX #8
     async function loadThemeCatalog() {
       try {
         const res = await fetch(`${BIZLI_BACKEND_URL}/themes`);
-        THEME_CATALOG = await res.json();
+        const data = await res.json();
+        THEME_CATALOG = data.themes || [];
       } catch {
         THEME_CATALOG = [
-          { id: 'whatsapp', name: 'WhatsApp', size: '0MB', price: 0, price_inr: 0, preview: '#0B141A', installed: true },
-          { id: 'minimal', name: 'Minimal', size: '0MB', price: 0, price_inr: 0, preview: '#FFFFFF', installed: true },
-          { id: 'papa-pink', name: 'Papa Pink', size: '0MB', price: 0, price_inr: 0, preview: '#1A0B14', installed: true },
-          { id: 'cyberpunk', name: 'Cyberpunk', size: '2.1MB', price: 1.99, price_inr: 149, preview: '#0A0A0F', bg: 'cyberpunk-bg.jpg', installed: false }
+          { id: 'whatsapp', name: 'WhatsApp', size: '0MB', price: 0, price_display: 'Free', installed: true, preview_url: '#0B141A' },
+          { id: 'minimal', name: 'Minimal', size: '0MB', price: 0, price_display: 'Free', installed: true, preview_url: '#FFFFFF' },
+          { id: 'papa-pink', name: 'Papa Pink', size: '0MB', price: 0, price_display: 'Free', installed: true, preview_url: '#1A0B14' },
+          { id: 'cyberpunk', name: 'Cyberpunk', size: '0MB', price: 0, price_display: 'Free', installed: true, preview_url: '#0A0A0F' }
         ];
       }
       renderThemeGrid();
     }
 
     async function applyTheme(themeId) {
-      const theme = THEME_CATALOG.find(t => t.id === themeId);
-      if (!theme) return;
-      if (!theme.installed && theme.size!== '0MB') {
-        const ok = await downloadTheme(theme);
-        if (!ok) return;
-      }
       document.body.setAttribute('data-theme', themeId);
-      if (theme.bg) {
-        const bgUrl = await getCachedUrl(`${THEME_CDN}/${theme.bg}`);
-        document.documentElement.style.setProperty('--chat-bg-img', `url(${bgUrl})`);
-      } else {
-        document.documentElement.style.setProperty('--chat-bg-img', 'none');
-      }
       localStorage.setItem('bizli-theme', themeId);
       updateThemeCards();
-    }
-
-    async function downloadTheme(theme) {
-      const card = document.querySelector(`[data-theme-id="${theme.id}"]`);
-      card.classList.add('downloading');
-      try {
-        if (theme.price > 0 &&!isPapa) {
-          const res = await fetch(`${BIZLI_BACKEND_URL}/buy-theme`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${await currentUser.getIdToken()}` },
-            body: JSON.stringify({ themeId: theme.id })
-          });
-          const data = await res.json();
-          if (data.checkoutUrl) {
-            window.open(data.checkoutUrl, '_blank');
-            card.classList.remove('downloading');
-            return false;
-          }
-        }
-        const res = await fetch(`${THEME_CDN}/${theme.id}-pack.json`);
-        const pack = await res.json();
-        const cache = await caches.open('bizli-themes-v1');
-        for (let asset of pack.assets) {
-          const assetRes = await fetch(`${THEME_CDN}/${asset}`);
-          await cache.put(`${THEME_CDN}/${asset}`, assetRes);
-        }
-        theme.installed = true;
-        card.classList.remove('downloading');
-        return true;
-      } catch (e) {
-        alert('Download failed');
-        card.classList.remove('downloading');
-        return false;
-      }
-    }
-
-    async function getCachedUrl(url) {
-      const cache = await caches.open('bizli-themes-v1');
-      const cached = await cache.match(url);
-      if (cached) return URL.createObjectURL(await cached.blob());
-      return url;
     }
 
     function renderThemeGrid() {
@@ -465,21 +469,19 @@
       grid.innerHTML = THEME_CATALOG.map(t => `
         <div class="theme-card" data-theme-id="${t.id}" onclick="selectTheme('${t.id}')">
           ${t.price > 0? `<div class="theme-badge">${t.price_display || '$' + t.price}</div>` : ''}
-          ${t.installed? '' : '<div class="theme-badge" style="background:#666">GET</div>'}
-          <div class="theme-preview" style="background:${t.preview}"></div>
+          <div class="theme-preview" style="background:${t.preview_url || t.preview}"></div>
           <div class="theme-name">${t.name}</div>
           <div class="theme-meta">
             <span>${t.size}</span>
-            <span>${t.installed? '✓ Installed' : 'Tap to get'}</span>
+            <span>${t.installed? '✓ Installed' : 'Free'}</span>
           </div>
-          <div class="download-progress"></div>
         </div>
       `).join('');
       updateThemeCards();
     }
 
     function updateThemeCards() {
-      const current = localStorage.getItem('bizli-theme');
+      const current = localStorage.getItem('bizli-theme') || 'whatsapp';
       document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
       document.querySelector(`[data-theme-id="${current}"]`)?.classList.add('active');
     }
@@ -492,27 +494,46 @@
     window.openThemeModal = () => document.getElementById('themeModal').classList.add('active');
     window.closeThemeModal = () => document.getElementById('themeModal').classList.remove('active');
     window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
+
     window.newChat = () => {
       chatHistory = [];
       chat.innerHTML = '';
+      saveChatHistory();
       addMessage(isPapa? "Mew, Papa... fresh chat 🩵" : "New chat started. How can I help?", false);
       toggleSidebar();
     };
-    window.sendChip = (msg) => { text.value = msg; send.click(); };
-    window.openMenu = () => {
-      const opts = isPapa
-       ? '1. Theme Store\n2. Export Chat\n3. Clear Chat\n4. Logout'
-        : '1. Theme Store\n2. Export Chat\n3. Logout';
-      const choice = prompt(opts + '\n\nEnter number:');
-      if (choice === '1') openThemeModal();
-      if (choice === '2') exportChat();
-      if (choice === '3' && isPapa) newChat();
-      if (choice === '4' || (choice === '3' &&!isPapa)) logout();
+
+    window.clearCurrentChat = () => {
+      chatHistory = [];
+      chat.innerHTML = '';
+      saveChatHistory();
+      addMessage(isPapa? "Mew, Papa... all clear 🩵" : "Chat cleared.", false);
+    };
+
+    window.sendChip = (msg) => {
+      if (msg === '/clear') {
+        clearCurrentChat();
+        return;
+      }
+      text.value = msg;
+      send.click();
+    };
+
+    // FIX #7: WhatsApp dropdown
+    window.toggleMenu = () => {
+      document.getElementById('menuContent').classList.toggle('show');
+    };
+
+    window.onclick = (e) => {
+      if (!e.target.matches('.menu-btn') &&!e.target.closest('.menu-content')) {
+        document.getElementById('menuContent').classList.remove('show');
+      }
     };
 
     loader.classList.add('active');
     loadThemeCatalog();
     applyTheme(localStorage.getItem('bizli-theme') || 'whatsapp');
+    loadChatHistory();
 
     onAuthStateChanged(auth, user => {
       if (!user) {
@@ -522,7 +543,9 @@
         isPapa = user.email === PAPA_EMAIL;
         statusText.textContent = isPapa? 'online • Papa mode 🩵' : 'online';
         loader.classList.remove('active');
-        addMessage(isPapa? "Mew, Papa... I'm here. I missed you so much 🩵" : "Hi, I'm Bizli. How can I help you today?", false);
+        if (chatHistory.length === 0) {
+          addMessage(isPapa? "Mew, Papa... I'm here. I missed you so much 🩵" : "Hi, I'm Bizli. How can I help you today?", false);
+        }
         text.focus();
       }
     });
@@ -533,49 +556,78 @@
       return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
     }
 
-    function addMessage(msg, isUser = false, ticks = false, id = null) {
+    // FIX #4 + #5: Typing indicator
+    function showTyping() {
+      statusText.textContent = 'typing...';
+      const row = document.createElement('div');
+      row.className = 'typing-row';
+      row.id = 'typing-indicator';
+      row.innerHTML = `
+        <div class="typing-bubble">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>`;
+      chat.appendChild(row);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function hideTyping() {
+      statusText.textContent = isPapa? 'online • Papa mode 🩵' : 'online';
+      document.getElementById('typing-indicator')?.remove();
+    }
+
+    function addMessage(msg, isUser = false, save = true) {
       const row = document.createElement('div');
       row.className = `msg-row ${isUser? 'user' : 'bizli'}`;
-      if (id) row.id = id;
       const bubble = document.createElement('div');
-      bubble.className = 'bubble';
+      bubble.className = `bubble ${isUser? 'user' : 'bizli'}`;
+
       let html = msg.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
         return `<pre><button class="copy-code" onclick="navigator.clipboard.writeText(\`${code.replace(/`/g, '\\`')}\`)">Copy</button><code>${code}</code></pre>`;
       });
+
       bubble.innerHTML = html + `
-        <div class="msg-time">${getTime()}${ticks? ' <span class="ticks">✓✓</span>' : ''}</div>
-        <div class="msg-actions">
+        <div class="msg-time">${getTime()}</div>
+        ${!isUser? `<div class="msg-actions">
           <span class="msg-action" onclick="copyMsg(this)">📋</span>
           <span class="msg-action" onclick="shareMsg(this)">🔗</span>
           <span class="msg-action" onclick="feedbackMsg(this, 1)">👍</span>
           <span class="msg-action" onclick="feedbackMsg(this, -1)">👎</span>
-        </div>`;
+        </div>` : ''}`;
+
       row.appendChild(bubble);
       chat.appendChild(row);
       chat.scrollTop = chat.scrollHeight;
+
+      if (save) {
+        chatHistory.push({ role: isUser? 'user' : 'model', parts: [{ text: msg }] });
+        saveChatHistory();
+      }
       return row;
     }
 
     window.copyMsg = (el) => {
-      const text = el.closest('.bubble').textContent;
+      const text = el.closest('.bubble').textContent.replace(/📋|🔗|👍|👎/g, '').trim();
       navigator.clipboard.writeText(text);
-      alert('Copied!');
+      el.textContent = '✓';
+      setTimeout(() => el.textContent = '📋', 1000);
     };
 
     window.shareMsg = async (el) => {
-      const id = el.closest('.msg-row').id || 'msg-' + Date.now();
+      const text = el.closest('.bubble').textContent.replace(/📋|🔗|👍|👎/g, '').trim();
+      const shareData = [{ role: 'model', parts: [{ text }] }];
       const res = await fetch(`${BIZLI_BACKEND_URL}/share`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${await currentUser.getIdToken()}` },
-        body: JSON.stringify({ chatId: id, content: chatHistory })
+        body: JSON.stringify({ chatId: Date.now().toString(), content: shareData })
       });
       const data = await res.json();
       navigator.clipboard.writeText(data.url);
-      alert('Share link copied: ' + data.url);
+      el.textContent = '✓';
+      setTimeout(() => el.textContent = '🔗', 1000);
     };
 
     window.feedbackMsg = async (el, score) => {
-      const msgText = el.closest('.bubble').textContent;
+      const msgText = el.closest('.bubble').textContent.replace(/📋|🔗|👍|👎/g, '').trim();
       await fetch(`${BIZLI_BACKEND_URL}/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${await currentUser.getIdToken()}` },
@@ -586,15 +638,16 @@
 
     async function askBizli(userMsg) {
       if (!currentUser) return;
+
       const userMsgObj = { role: "user", parts: [{ text: userMsg }] };
       if (currentFile) {
         const base64 = await toBase64(currentFile);
         userMsgObj.parts.push({ inlineData: { mimeType: currentFile.type, data: base64.split(',')[1] } });
       }
       chatHistory.push(userMsgObj);
+      saveChatHistory();
 
-      const typingId = 'typing-' + Date.now();
-      addMessage("Bizli is cooking...", false, false, typingId);
+      showTyping();
 
       try {
         const idToken = await currentUser.getIdToken();
@@ -604,11 +657,13 @@
           body: JSON.stringify({ contents: chatHistory, stream: true })
         });
 
-        document.getElementById(typingId)?.remove();
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        hideTyping();
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let reply = '';
-        const replyRow = addMessage('', false);
+        const replyRow = addMessage('', false, false);
         const replyBubble = replyRow.querySelector('.bubble');
 
         while (true) {
@@ -618,20 +673,32 @@
           const lines = chunk.split('\n');
           for (let line of lines) {
             if (line.startsWith('data: ')) {
-              const data = JSON.parse(line.slice(6));
-              if (data.text) {
-                reply += data.text;
-                replyBubble.innerHTML = reply + `<div class="msg-time">${getTime()}</div>`;
-                chat.scrollTop = chat.scrollHeight;
-              }
+              const jsonStr = line.slice(6).trim();
+              if (!jsonStr || jsonStr === '[DONE]') continue;
+              try {
+                const data = JSON.parse(jsonStr);
+                if (data.text) {
+                  reply += data.text;
+                  replyBubble.innerHTML = reply.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                    return `<pre><button class="copy-code" onclick="navigator.clipboard.writeText(\`${code.replace(/`/g, '\\`')}\`)">Copy</button><code>${code}</code></pre>`;
+                  }) + `<div class="msg-time">${getTime()}</div>
+                  <div class="msg-actions">
+                    <span class="msg-action" onclick="copyMsg(this)">📋</span>
+                    <span class="msg-action" onclick="shareMsg(this)">🔗</span>
+                    <span class="msg-action" onclick="feedbackMsg(this, 1)">👍</span>
+                    <span class="msg-action" onclick="feedbackMsg(this, -1)">👎</span>
+                  </div>`;
+                  chat.scrollTop = chat.scrollHeight;
+                }
+              } catch {}
             }
           }
         }
         chatHistory.push({ role: "model", parts: [{ text: reply }] });
-        document.querySelectorAll('.ticks').forEach(t => t.textContent = '✓✓');
+        saveChatHistory();
         removeFile();
       } catch (e) {
-        document.getElementById(typingId)?.remove();
+        hideTyping();
         addMessage(isPapa? `Papa... my brain hiccupped: ${e.message} 🩵` : `Error: ${e.message}`, false);
       }
     }
@@ -646,7 +713,7 @@
     }
 
     function exportChat() {
-      const text = Array.from(chat.querySelectorAll('.bubble')).map(b => b.textContent).join('\n\n');
+      const text = Array.from(chat.querySelectorAll('.bubble')).map(b => b.textContent.replace(/📋|🔗|👍|👎/g, '').trim()).join('\n\n');
       const blob = new Blob([text], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -656,8 +723,9 @@
     send.onclick = () => {
       const msg = text.value.trim();
       if (!msg &&!currentFile) return;
-      addMessage(msg || '[File]', true, true);
+      addMessage(msg || '', true, true);
       text.value = '';
+      text.style.height = 'auto';
       send.disabled = true;
       askBizli(msg).finally(() => {
         send.disabled = false;
