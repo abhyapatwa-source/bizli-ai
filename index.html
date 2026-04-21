@@ -8,10 +8,11 @@
   <link rel="icon" href="./icon-192.png">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
+    html, body { 
+      margin: 0; padding: 0; height: 100%; 
+      background: #1a1a2e; /* FIXES WHITE FLASH */
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #1a1a2e; color: #eee; height: 100vh; overflow: hidden;
+      color: #eee; overflow: hidden;
     }
     .splash {
       position: fixed; inset: 0; background: #1a1a2e;
@@ -20,16 +21,16 @@
     }
     .splash.hide { opacity: 0; pointer-events: none; }
     .logo {
-      width: 80px; height: 80px; border-radius: 20px;
-      background: #0f3460; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 40px rgba(102, 126, 234, 0.6); margin-bottom: 20px;
+      width: 100px; height: 100px; margin-bottom: 20px;
+      /* REMOVED background: #0f3460; - THIS WAS THE BLACK BOX */
+      display: flex; align-items: center; justify-content: center;
+      filter: drop-shadow(0 0 30px rgba(167, 139, 250, 0.6)); /* GLOW IS BACK */
     }
-    .logo img { width: 50px; height: 50px; }
+    .logo img { width: 80px; height: 80px; }
     .splash h1 { font-size: 1.8rem; font-weight: 400; }
     .login-wrap {
       height: 100vh; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      opacity: 0; transition: opacity 0.8s ease-in;
+      background: #1a1a2e; opacity: 0; transition: opacity 0.8s ease-in;
     }
     .login-wrap.show { opacity: 1; }
     .login-box { text-align: center; padding: 40px; }
@@ -65,12 +66,17 @@
   </div>
 
   <script type="module">
-    import { saveToken } from './assets/js/utils.js';
+    import { saveToken, getToken } from './assets/js/utils.js';
     
-    setTimeout(() => {
-      document.getElementById('splash').classList.add('hide');
-      document.getElementById('loginWrap').classList.add('show');
-    }, 2500);
+    // FIX LOGIN LOOP: If already logged in, skip to app
+    if (getToken()) {
+      window.location.href = './app.html';
+    } else {
+      setTimeout(() => {
+        document.getElementById('splash').classList.add('hide');
+        document.getElementById('loginWrap').classList.add('show');
+      }, 2500);
+    }
 
     window.handleCredentialResponse = (response) => {
       saveToken(response.credential);
