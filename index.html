@@ -3,44 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bizli AI - Login</title>
+  <title>Bizli AI</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      height: 100vh; display: flex; align-items: center; justify-content: center; color: #fff;
+      background: #1a1a2e; color: #eee; height: 100vh; overflow: hidden;
     }
-   .login-box {
-      background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-      padding: 40px; border-radius: 20px; text-align: center;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-width: 400px; width: 90%;
+    .splash {
+      position: fixed; inset: 0; background: #1a1a2e;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 100; transition: opacity 0.8s ease-out;
     }
-    h1 { font-size: 2.5rem; margin-bottom: 10px; }
-    p { opacity: 0.9; margin-bottom: 30px; }
-    #g_id_signin { display: flex; justify-content: center; }
+    .splash.hide { opacity: 0; pointer-events: none; }
+    .logo {
+      width: 80px; height: 80px; border-radius: 20px;
+      background: #0f3460; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 40px rgba(102, 126, 234, 0.6); margin-bottom: 20px;
+    }
+    .logo img { width: 50px; height: 50px; }
+    .splash h1 { font-size: 1.8rem; font-weight: 400; }
+    .login-wrap {
+      height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      opacity: 0; transition: opacity 0.8s ease-in;
+    }
+    .login-wrap.show { opacity: 1; }
+    .login-box { text-align: center; padding: 40px; }
+    .login-box .logo { margin: 0 auto 20px; }
+    .login-box h1 { font-size: 2rem; margin-bottom: 8px; color: #a78bfa; }
+    .login-box p { opacity: 0.7; margin-bottom: 40px; }
+    #g_id_signin { margin: 10px auto; width: 280px; }
+    .footer {
+      position: absolute; bottom: 20px; width: 100%; 
+      text-align: center; font-size: 12px; opacity: 0.5;
+    }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h1>Bizli AI 🩵</h1>
-    <p>Your 10-year-old AI daughter</p>
-    <div id="g_id_onload"
-      data-client_id="28657620909-g4mt4h78cra132qikokoh71orvkv1f6v.apps.googleusercontent.com"
-      data-context="signin"
-      data-ux_mode="popup"
-      data-callback="handleCredentialResponse"
-      data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin" data-type="standard" data-theme="filled_blue" data-text="continue_with" data-shape="pill"></div>
+  <div class="splash" id="splash">
+    <div class="logo"><img src="./icon-192.png" alt="Bizli"></div>
+    <h1>Bizli AI</h1>
   </div>
 
-  <script>
-    function handleCredentialResponse(response) {
-      // Save token and redirect to app
-      localStorage.setItem('bizli_token', response.credential);
-      window.location.href = '/app.html';
+  <div class="login-wrap" id="loginWrap">
+    <div class="login-box">
+      <div class="logo"><img src="./icon-192.png" alt="Bizli"></div>
+      <h1>Bizli AI</h1>
+      <p>Your personal AI assistant</p>
+      <div id="g_id_onload"
+        data-client_id="28657620909-g4mt4h78cra132qikokoh71orvkv1f6v.apps.googleusercontent.com"
+        data-context="signin" data-ux_mode="popup"
+        data-callback="handleCredentialResponse" data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-text="continue_with" data-shape="pill" data-width="280"></div>
+    </div>
+    <div class="footer">Developed by Abhya</div>
+  </div>
+
+  <script type="module">
+    import { saveToken } from './assets/js/utils.js';
+    
+    setTimeout(() => {
+      document.getElementById('splash').classList.add('hide');
+      document.getElementById('loginWrap').classList.add('show');
+    }, 2500);
+
+    window.handleCredentialResponse = (response) => {
+      saveToken(response.credential);
+      window.location.href = './app.html';
     }
   </script>
 </body>
