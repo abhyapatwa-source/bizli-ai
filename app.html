@@ -4,38 +4,47 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bizli AI</title>
-  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./assets/css/style.css?v=4">
   <link rel="icon" href="./icon-192.png">
-  <link rel="stylesheet" href="./assets/css/style.css">
 </head>
-<body data-theme="dark">
-  <div class="sidebar" id="sidebar">
-    <button class="new-chat" onclick="newChat()">+ New Chat</button>
-    <div id="history"></div>
-  </div>
-  
-  <div class="main">
-    <div class="header">
-      <button onclick="toggleSidebar()" style="background:none;font-size:20px;">☰</button>
-      <h2>Bizli AI 🩵</h2>
-      <div class="menu">
-        <button onclick="toggleMenu()">⋮</button>
-        <div class="dropdown" id="menu">
-          <button onclick="toggleTheme()">Toggle Theme</button>
-          <button onclick="logout()">Logout</button>
+<body data-theme="cyber">
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <button class="new-chat-btn" id="newChatBtn">+ New Chat</button>
+      <div class="history-list" id="historyList"></div>
+      <div class="sidebar-footer">
+        <div class="theme-switcher">
+          <button data-theme="cyber">Cyber</button>
+          <button data-theme="candy">Candy</button>
+          <button data-theme="whatsapp">WhatsApp</button>
+        </div>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="chat-header">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <h1>Bizli AI 🩵</h1>
+        <button class="bg-btn" id="bgBtn">🎨</button>
+      </header>
+      
+      <div class="chat-window" id="chatWindow">
+        <div class="welcome">
+          <img src="./icon-192.png" alt="Bizli" class="welcome-logo">
+          <h2>What's on your mind, Papa?</h2>
         </div>
       </div>
-    </div>
-    
-    <div class="chat-box" id="chatBox"></div>
-    
-    <div class="input-area">
-      <input id="msgInput" placeholder="Message Bizli...">
-      <button onclick="sendMsg()">Send</button>
-    </div>
-  </div>
 
-  <!-- ALL JS NOW LOADS FROM HERE -->
+      <footer class="chat-input-area">
+        <div class="input-wrap">
+          <textarea id="userInput" placeholder="Message Bizli..." rows="1"></textarea>
+          <button id="sendBtn">➤</button>
+        </div>
+      </footer>
+    </main>
+  </div>
+  <input type="file" id="bgInput" accept="image/*" style="display:none">
   <script type="module" src="./assets/js/main.js"></script>
 </body>
 </html>
