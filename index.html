@@ -6,11 +6,12 @@
   <title>Bizli AI</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon-192.png">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     html, body { 
       margin: 0; padding: 0; height: 100%; 
-      background: #1a1a2e; /* FIXES WHITE FLASH */
+      background: #1a1a2e; 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: #eee; overflow: hidden;
     }
@@ -22,11 +23,13 @@
     .splash.hide { opacity: 0; pointer-events: none; }
     .logo {
       width: 100px; height: 100px; margin-bottom: 20px;
-      /* REMOVED background: #0f3460; - THIS WAS THE BLACK BOX */
       display: flex; align-items: center; justify-content: center;
-      filter: drop-shadow(0 0 30px rgba(167, 139, 250, 0.6)); /* GLOW IS BACK */
+      filter: drop-shadow(0 0 30px rgba(167, 139, 250, 0.8));
     }
-    .logo img { width: 80px; height: 80px; }
+    .logo img { 
+      width: 80px; height: 80px; 
+      background: transparent; /* KILLS BLACK BOX */
+    }
     .splash h1 { font-size: 1.8rem; font-weight: 400; }
     .login-wrap {
       height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -46,13 +49,13 @@
 </head>
 <body>
   <div class="splash" id="splash">
-    <div class="logo"><img src="./icon-192.png" alt="Bizli"></div>
+    <div class="logo"><img src="./icon-192.png?v=2" alt="Bizli"></div>
     <h1>Bizli AI</h1>
   </div>
 
   <div class="login-wrap" id="loginWrap">
     <div class="login-box">
-      <div class="logo"><img src="./icon-192.png" alt="Bizli"></div>
+      <div class="logo"><img src="./icon-192.png?v=2" alt="Bizli"></div>
       <h1>Bizli AI</h1>
       <p>Your personal AI assistant</p>
       <div id="g_id_onload"
@@ -68,9 +71,9 @@
   <script type="module">
     import { saveToken, getToken } from './assets/js/utils.js';
     
-    // FIX LOGIN LOOP: If already logged in, skip to app
+    // If already logged in, skip to app immediately
     if (getToken()) {
-      window.location.href = './app.html';
+      window.location.replace('./app.html');
     } else {
       setTimeout(() => {
         document.getElementById('splash').classList.add('hide');
@@ -80,7 +83,7 @@
 
     window.handleCredentialResponse = (response) => {
       saveToken(response.credential);
-      window.location.href = './app.html';
+      window.location.replace('./app.html');
     }
   </script>
 </body>
